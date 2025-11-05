@@ -29,6 +29,12 @@ SupremeChat is designed to incorporate dedicated type chat systems into one syst
   - **✨ NEW:** Extended Click System (suggest_command, run_command, open_url)
   - Click to execute commands, pre-fill chat, or open URLs
   - Full PlaceholderAPI support in click actions
+- **✨ NEW: ChatHead Integration** - 8x8 Player heads in chat
+  - **Works out of the box** - Zero configuration needed!
+  - Automatic resource pack distribution
+  - Full offline mode support (cracked servers)
+  - Smart caching and multiple skin sources
+  - Embedded ChatHeadFont API with enhancements
 - **✨ NEW: Private Messages System** (/msg, /tell, /whisper, /reply)
   - Complete takeover of PM commands with advanced formatting
   - Full hover & click event support in private messages
@@ -78,7 +84,20 @@ SupremeChat is designed to incorporate dedicated type chat systems into one syst
 
 ## 🔧 Recent Updates & Bug Fixes
 
-### v1.14-dev-1.3 (Latest)
+### v1.15-dev (Latest)
+
+**NEW: ChatHead Integration 🎨**
+- ✅ Full ChatHeadFont API integration with enhancements
+- ✅ **Works out of the box** - Zero configuration required!
+- ✅ Automatic resource pack distribution to players
+- ✅ Offline mode support (name-based skin retrieval for cracked servers)
+- ✅ Smart server mode detection (online/offline)
+- ✅ Multiple skin sources (Mojang, Minotar, Crafatar, MC-Heads)
+- ✅ Configurable caching system (5 min default)
+- ✅ Pre-configured with working resource pack URL
+- ✅ Optional custom pack hosting support
+
+### v1.14-dev-1.3
 
 **New Features:**
 - ✅ Extended Click System for chat messages (3 action types)
@@ -105,8 +124,23 @@ SupremeChat is designed to incorporate dedicated type chat systems into one syst
 
 ## 📚 Documentation
 
-- **[Private Messages Guide](PRIVATE_MESSAGES_GUIDE.md)** - Complete PM system documentation
-- **[Extended Click System](CLICK_SYSTEM_EXAMPLES.md)** - Click action examples and configuration
+### Core Features
+- **[Private Messages Guide](docs/PRIVATE_MESSAGES_GUIDE.md)** - Complete PM system documentation
+- **[Extended Click System](docs/CLICK_SYSTEM_EXAMPLES.md)** - Click action examples and configuration
+
+### ChatHead Integration
+- **[ChatHead Quick Start](docs/RESOURCEPACK_QUICKSTART.md)** - ⚡ 5-minute setup (works out of box!)
+- **[ChatHead Complete Guide](docs/CHATHEAD_README.md)** - Full feature overview and documentation
+- **[API Integration Guide](docs/CHATHEAD_INTEGRATION_GUIDE.md)** - How to use ChatHead API in code
+- **[Configuration Guide](docs/CHATHEAD_CONFIG_GUIDE.md)** - All configuration options explained
+- **[Resource Pack Setup](docs/RESOURCEPACK_SETUP_GUIDE.md)** - Hosting your own custom pack
+- **[Offline Mode Explanation](docs/OFFLINE_MODE_EXPLANATION.md)** - Technical details about cracked servers
+- **[Rendering Technical Details](docs/CHATHEAD_RENDERING_EXPLAINED.md)** - How Unicode rendering works
+- **[Implementation Example](docs/CHATHEAD_IMPLEMENTATION_EXAMPLE.md)** - Add heads to chat messages
+
+### Configuration Examples
+- **[ChatHead Config Example](docs/config-chathead-example.yml)** - Ready-to-copy configuration
+- **[server.properties Example](docs/server.properties.resourcepack-example)** - Alternative pack distribution method
 
 ---
 
