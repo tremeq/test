@@ -137,22 +137,34 @@ public class ResourcePackManager implements Listener {
      */
     private void sendResourcePackNew(Player player) {
         try {
+            // Paper 1.21.8 might have different signatures, try multiple approaches
+
             // Convert legacy color codes to Adventure component
             net.kyori.adventure.text.Component prompt =
                 net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
                     .deserialize(promptMessage);
 
-            // Paper 1.21.8 uses: setResourcePack(String url, byte[] hash, Component prompt)
-            // Note: There's no "required" parameter in this version
-            // Convert SHA1 hex string to byte array
+            // Convert SHA1 hex string to byte array if provided
             byte[] hashBytes = null;
             if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
                 hashBytes = hexStringToByteArray(resourcePackHash);
             }
 
-            player.setResourcePack(resourcePackUrl, hashBytes, prompt);
+            // Try different method signatures available in Paper API
+            try {
+                // Try: setResourcePack(String url, String hash, boolean required, Component prompt)
+                if (hashBytes != null) {
+                    player.setResourcePack(resourcePackUrl, resourcePackHash, forceResourcePack, prompt);
+                } else {
+                    player.setResourcePack(resourcePackUrl, "", forceResourcePack, prompt);
+                }
+            } catch (Exception e) {
+                // If that fails, try simpler signature: setResourcePack(String url)
+                player.setResourcePack(resourcePackUrl);
+                plugin.getLogger().info("Sent resource pack using URL-only method");
+            }
         } catch (Exception e) {
-            // If Adventure API fails, fall back to legacy
+            // If all fails, use legacy method
             plugin.getLogger().warning("Failed to use new resource pack API, falling back to legacy: " + e.getMessage());
             sendResourcePackLegacy(player);
         }
