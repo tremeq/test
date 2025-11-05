@@ -2,6 +2,7 @@ package net.devscape.project.supremechat;
 
 import net.devscape.project.supremechat.chatgames.GameManager;
 import net.devscape.project.supremechat.chathead.ChatHeadAPI;
+import net.devscape.project.supremechat.chathead.ResourcePackManager;
 import net.devscape.project.supremechat.commands.ChannelCommand;
 import net.devscape.project.supremechat.commands.EmojisCommands;
 import net.devscape.project.supremechat.commands.MessageCommand;
@@ -30,6 +31,7 @@ public final class SupremeChat extends JavaPlugin {
     private static SupremeChat instance;
     private ChannelManager channelManager;
     private GameManager gameManager;
+    private ResourcePackManager resourcePackManager;
 
     private static Permission perms = null;
     private static Chat chat;
@@ -95,6 +97,20 @@ public final class SupremeChat extends JavaPlugin {
             getLogger().info("ChatHeadAPI initialized successfully!");
         } catch (Exception e) {
             getLogger().warning("Failed to initialize ChatHeadAPI: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Initialize Resource Pack Manager for automatic distribution
+        try {
+            resourcePackManager = new ResourcePackManager(this);
+            if (resourcePackManager.isEnabled()) {
+                getServer().getPluginManager().registerEvents(resourcePackManager, this);
+                getLogger().info("ResourcePackManager initialized and registered");
+            } else {
+                getLogger().info("ResourcePackManager disabled in config");
+            }
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize ResourcePackManager: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -370,6 +386,22 @@ public final class SupremeChat extends JavaPlugin {
             config.set("chathead.use-overlay-by-default", true);
             needsSave = true;
         }
+
+        // Validate ChatHead ResourcePack configuration
+        if (!config.isSet("chathead.resourcepack.auto-send")) {
+            config.set("chathead.resourcepack.auto-send", true);
+            config.set("chathead.resourcepack.url", "");
+            config.set("chathead.resourcepack.sha1", "");
+            config.set("chathead.resourcepack.prompt", "§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat\n§e§lHighly Recommended!");
+            config.set("chathead.resourcepack.force", false);
+
+            getLogger().info("ChatHead resource pack configuration created");
+            getLogger().info("  IMPORTANT: Set 'chathead.resourcepack.url' to enable automatic pack distribution");
+            getLogger().info("  See RESOURCEPACK_SETUP_GUIDE.md for hosting instructions");
+
+            needsSave = true;
+        }
+
         if (needsSave) {
             plugin.saveConfig();
         }

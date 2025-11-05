@@ -23,11 +23,13 @@ server.properties.resourcepack-example  ← Configuration example
 
 ---
 
-## 🎯 Quick Setup (Server Auto-Distribution)
+## 🎯 Quick Setup - AUTOMATIC Distribution (Recommended)
+
+**SupremeChat now automatically sends the resource pack to players!**
 
 ### Step 1: Host the Pack
 
-**GitHub Releases (Recommended)**:
+**GitHub Releases (Easiest)**:
 1. Go to your repo → Releases → Create new release
 2. Upload `chathead-resourcepack.zip`
 3. Copy the download URL
@@ -37,9 +39,37 @@ server.properties.resourcepack-example  ← Configuration example
 https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip
 ```
 
-### Step 2: Configure Server
+### Step 2: Configure config.yml
 
-Add to `server.properties`:
+Edit your `plugins/SupremeChat/config.yml`:
+
+```yaml
+chathead:
+  enabled: true
+  # ... other chathead settings ...
+
+  resourcepack:
+    auto-send: true  # ✅ Enable automatic sending
+    url: "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip"
+    sha1: "401b402cefdb05776cb1bb06db0afc0ed566e20d"
+    prompt: "§6§lSupremeChat §aChatHead Pack\n§7Required for player heads in chat\n§e§lHighly Recommended!"
+    force: false  # false = optional, true = required
+```
+
+### Step 3: Reload Plugin
+
+```bash
+/supremechat reload
+# Or restart the server
+```
+
+**Done!** Players will be prompted to download when joining.
+
+---
+
+## 🎯 Alternative: server.properties Method
+
+If you prefer using `server.properties` instead:
 
 ```properties
 resource-pack=https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip
@@ -48,14 +78,7 @@ resource-pack-prompt=§6§lSupremeChat §aChatHead Pack\n§7Required for player 
 require-resource-pack=false
 ```
 
-### Step 3: Restart Server
-
-```bash
-stop
-# Wait for shutdown, then start again
-```
-
-**Done!** Players will be prompted to download when joining.
+**Note**: server.properties takes priority. If set there, config.yml won't override it.
 
 ---
 

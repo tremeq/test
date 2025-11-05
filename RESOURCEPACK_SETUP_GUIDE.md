@@ -6,11 +6,34 @@ The ChatHead feature requires a **resource pack** to be installed on the client 
 
 **Without the resource pack, players will see garbled text instead of heads!**
 
+## ✨ NEW: Automatic Distribution Built-In!
+
+**SupremeChat now includes automatic resource pack distribution!**
+
+You no longer need to configure `server.properties` - just set the URL in `config.yml` and the plugin will automatically send the pack to players when they join.
+
+**Benefits:**
+- ✅ No server restart needed to change pack URL
+- ✅ Custom prompt messages with color codes
+- ✅ Respects server.properties (won't override if already set)
+- ✅ Configurable force-download option
+- ✅ SHA1 verification built-in
+
+**Quick Setup:**
+1. Host `chathead-resourcepack.zip` (see Method 1 below)
+2. Set URL in `config.yml` under `chathead.resourcepack.url`
+3. Reload plugin with `/supremechat reload`
+
+**See Quick Start**: `RESOURCEPACK_QUICKSTART.md`
+
+---
+
 ## 📂 Resource Pack Location
 
 The resource pack is included in this repository at:
 - **Unpacked**: `chathead-resourcepack/` (for development)
 - **Packed**: `chathead-resourcepack.zip` (3.1 KB, ready for distribution)
+- **SHA1**: `401b402cefdb05776cb1bb06db0afc0ed566e20d`
 
 ## 🚀 Distribution Methods
 
@@ -52,9 +75,15 @@ You need to host `chathead-resourcepack.zip` somewhere accessible via HTTPS. Opt
 3. Extract the FILE_ID from the link
 4. Use format: `https://drive.google.com/uc?export=download&id=FILE_ID`
 
-#### Step 2: Generate SHA1 Hash
+#### Step 2: Get SHA1 Hash (Optional but Recommended)
 
-The SHA1 hash verifies pack integrity. Generate it:
+The SHA1 hash verifies pack integrity. Pre-calculated for included pack:
+
+```
+401b402cefdb05776cb1bb06db0afc0ed566e20d
+```
+
+To regenerate if you modify the pack:
 
 ```bash
 # On Linux/Mac
@@ -62,50 +91,82 @@ sha1sum chathead-resourcepack.zip
 
 # On Windows (PowerShell)
 Get-FileHash chathead-resourcepack.zip -Algorithm SHA1
-
-# Example output:
-# a1b2c3d4e5f6789012345678901234567890abcd  chathead-resourcepack.zip
 ```
 
-#### Step 3: Configure server.properties
+#### Step 3: Choose Configuration Method
+
+##### 🆕 Option A: config.yml (RECOMMENDED - No server restart needed!)
+
+Edit `plugins/SupremeChat/config.yml`:
+
+```yaml
+chathead:
+  enabled: true
+  skin-source: AUTO
+  cache-time-minutes: 5
+  use-overlay-by-default: true
+
+  # Resource pack automatic distribution
+  resourcepack:
+    # Enable automatic sending on player join
+    auto-send: true
+
+    # Your hosted resource pack URL (HTTPS required!)
+    url: "https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip"
+
+    # SHA1 hash for verification
+    sha1: "401b402cefdb05776cb1bb06db0afc0ed566e20d"
+
+    # Custom prompt message (supports color codes)
+    prompt: "§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat\n§e§lHighly Recommended!"
+
+    # Force download (kick players who decline)
+    force: false
+```
+
+**Then reload:**
+```bash
+/supremechat reload
+```
+
+**Benefits:**
+- ✅ No server restart needed
+- ✅ Change URL anytime with just a reload
+- ✅ Custom color-coded prompts
+- ✅ Easy to manage
+
+---
+
+##### Option B: server.properties (Traditional method)
 
 Add these lines to your `server.properties`:
 
 ```properties
 # Resource Pack Settings
 resource-pack=https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip
-resource-pack-sha1=YOUR_SHA1_HASH_HERE
-resource-pack-prompt=§aSupremeChat ChatHead Pack§r\n§7Required for displaying player heads in chat
+resource-pack-sha1=401b402cefdb05776cb1bb06db0afc0ed566e20d
+resource-pack-prompt=§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat
 require-resource-pack=false
 ```
 
-**Configuration Explained:**
+**Then restart server:**
+```bash
+stop
+# Start again
+```
 
-| Option | Description | Recommended Value |
-|--------|-------------|-------------------|
-| `resource-pack` | Direct download URL (HTTPS only) | Your hosted URL |
-| `resource-pack-sha1` | SHA1 hash for verification | Generated hash |
-| `resource-pack-prompt` | Message shown to player | Custom message with formatting |
-| `require-resource-pack` | Kick players who decline | `false` (optional feature) |
+**Note:** server.properties takes priority over config.yml. If you set it here, the plugin won't send its own pack.
 
 **Example with real values:**
 
 ```properties
 resource-pack=https://github.com/yourname/supremechat/releases/download/v1.0/chathead-resourcepack.zip
-resource-pack-sha1=a1b2c3d4e5f6789012345678901234567890abcd
+resource-pack-sha1=401b402cefdb05776cb1bb06db0afc0ed566e20d
 resource-pack-prompt=§6§lSupremeChat§r §7ChatHead Pack\n§7Enables player head rendering in chat\n§e§lRecommended!
 require-resource-pack=false
 ```
 
-#### Step 4: Restart Server
-
-```bash
-# Stop the server gracefully
-stop
-
-# Start it again
-java -jar spigot.jar
-```
+---
 
 Players will now be prompted to download the pack when joining!
 
