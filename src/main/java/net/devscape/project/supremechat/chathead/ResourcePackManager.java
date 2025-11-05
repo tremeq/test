@@ -1,5 +1,6 @@
 package net.devscape.project.supremechat.chathead;
 
+import net.devscape.project.supremechat.SupremeChat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -40,25 +41,23 @@ public class ResourcePackManager implements Listener {
     public ResourcePackManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.enabled = plugin.getConfig().getBoolean("chathead.resourcepack.auto-send", true);
-        this.resourcePackUrl = plugin.getConfig().getString("chathead.resourcepack.url", "");
+        // Use default ChatHeadFont pack if no URL configured
+        this.resourcePackUrl = plugin.getConfig().getString("chathead.resourcepack.url", SupremeChat.DEFAULT_RESOURCE_PACK);
         this.resourcePackHash = plugin.getConfig().getString("chathead.resourcepack.sha1", null);
         this.promptMessage = plugin.getConfig().getString("chathead.resourcepack.prompt",
             "ChatHead Resource Pack is required for displaying player heads in chat");
         this.forceResourcePack = plugin.getConfig().getBoolean("chathead.resourcepack.force", false);
 
         if (enabled) {
-            if (resourcePackUrl.isEmpty()) {
-                plugin.getLogger().warning("ChatHead resource pack auto-send is enabled but URL is not configured!");
-                plugin.getLogger().warning("Set 'chathead.resourcepack.url' in config.yml");
-                plugin.getLogger().warning("See RESOURCEPACK_SETUP_GUIDE.md for hosting instructions");
+            plugin.getLogger().info("ChatHead resource pack manager initialized");
+            plugin.getLogger().info("URL: " + resourcePackUrl);
+            if (resourcePackUrl.equals(SupremeChat.DEFAULT_RESOURCE_PACK)) {
+                plugin.getLogger().info("Using default ChatHeadFont pack (you can change this in config.yml)");
+            }
+            if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
+                plugin.getLogger().info("SHA1: " + resourcePackHash);
             } else {
-                plugin.getLogger().info("ChatHead resource pack manager initialized");
-                plugin.getLogger().info("URL: " + resourcePackUrl);
-                if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
-                    plugin.getLogger().info("SHA1: " + resourcePackHash);
-                } else {
-                    plugin.getLogger().warning("No SHA1 hash configured - pack integrity won't be verified");
-                }
+                plugin.getLogger().info("No SHA1 hash configured - using URL-only mode");
             }
         } else {
             plugin.getLogger().info("ChatHead resource pack auto-send is DISABLED");
@@ -74,10 +73,6 @@ public class ResourcePackManager implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         if (!enabled) {
-            return;
-        }
-
-        if (resourcePackUrl.isEmpty()) {
             return;
         }
 

@@ -6,6 +6,7 @@ SupremeChat includes a **fully integrated ChatHead API** that renders 8x8 player
 
 ### ✨ Key Features
 
+- ✅ **Works Out of the Box** - Pre-configured with working resource pack, zero setup needed!
 - ✅ **Offline Mode Support** - Works with cracked servers (no Mojang authentication)
 - ✅ **Automatic Mode Detection** - Detects online/offline mode and chooses best skin source
 - ✅ **Multiple Skin Sources** - Mojang, Minotar, Crafatar, MC-Heads
@@ -18,43 +19,41 @@ SupremeChat includes a **fully integrated ChatHead API** that renders 8x8 player
 
 ## 🚀 Quick Start
 
-### 1. Enable ChatHead in config.yml
+### ⚡ INSTANT SETUP - Works Immediately!
+
+**Good news:** ChatHead works **out of the box** with zero configuration!
+
+The plugin is pre-configured with a working resource pack URL from ChatHeadFont.
+Just install the plugin and it works - **that's it!**
 
 ```yaml
+# Default config - works immediately!
 chathead:
   enabled: true
-  skin-source: AUTO  # Automatically detects server mode
+  skin-source: AUTO
   cache-time-minutes: 5
   use-overlay-by-default: true
-```
 
-### 2. Host Resource Pack
-
-Upload `chathead-resourcepack.zip` to:
-- **Recommended**: GitHub Releases (free, fast, reliable)
-- **Alternative**: Own web server, Dropbox, etc.
-
-Get the HTTPS download URL.
-
-### 3. Configure Automatic Distribution
-
-```yaml
-chathead:
   resourcepack:
     auto-send: true
-    url: "YOUR_HTTPS_URL_HERE"
-    sha1: "401b402cefdb05776cb1bb06db0afc0ed566e20d"
+    url: "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip"  # Pre-configured!
     prompt: "§6§lSupremeChat §aChatHead Pack\n§7Required for player heads"
-    force: false
 ```
 
-### 4. Reload Plugin
+**Players will automatically receive the resource pack when joining!**
 
-```bash
-/supremechat reload
-```
+---
 
-**Done!** Players will now receive the resource pack automatically.
+### 🎨 Optional: Use Your Own Custom Pack
+
+If you want to customize the resource pack:
+
+1. Host `chathead-resourcepack.zip` on GitHub Releases
+2. Change `url` in config.yml to your pack URL
+3. Optionally add SHA1 hash for verification
+4. Reload with `/supremechat reload`
+
+See **[RESOURCEPACK_SETUP_GUIDE.md](RESOURCEPACK_SETUP_GUIDE.md)** for detailed instructions.
 
 ---
 

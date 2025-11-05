@@ -28,6 +28,13 @@ import java.util.Map;
 
 public final class SupremeChat extends JavaPlugin {
 
+    /**
+     * Default resource pack URL for ChatHead rendering.
+     * This pack is hosted on GitHub and works out of the box.
+     * Users can override this in config.yml with their own pack.
+     */
+    public static final String DEFAULT_RESOURCE_PACK = "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip";
+
     private static SupremeChat instance;
     private ChannelManager channelManager;
     private GameManager gameManager;
@@ -390,14 +397,14 @@ public final class SupremeChat extends JavaPlugin {
         // Validate ChatHead ResourcePack configuration
         if (!config.isSet("chathead.resourcepack.auto-send")) {
             config.set("chathead.resourcepack.auto-send", true);
-            config.set("chathead.resourcepack.url", "");
+            config.set("chathead.resourcepack.url", DEFAULT_RESOURCE_PACK);
             config.set("chathead.resourcepack.sha1", "");
             config.set("chathead.resourcepack.prompt", "§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat\n§e§lHighly Recommended!");
             config.set("chathead.resourcepack.force", false);
 
-            getLogger().info("ChatHead resource pack configuration created");
-            getLogger().info("  IMPORTANT: Set 'chathead.resourcepack.url' to enable automatic pack distribution");
-            getLogger().info("  See RESOURCEPACK_SETUP_GUIDE.md for hosting instructions");
+            getLogger().info("ChatHead resource pack configuration created with default URL");
+            getLogger().info("  Default pack: " + DEFAULT_RESOURCE_PACK);
+            getLogger().info("  You can change the URL in config.yml to use your own pack");
 
             needsSave = true;
         }

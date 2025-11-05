@@ -1,12 +1,19 @@
 # 🚀 ChatHead Resource Pack - Quick Start
 
-## ⚡ TL;DR - Get it Working in 5 Minutes
+## ⚡ TL;DR - Works OUT OF THE BOX! ✅
+
+### **GOOD NEWS: It works immediately with zero configuration!**
+
+The plugin is pre-configured with a working resource pack URL from ChatHeadFont.
+**Players will automatically receive the pack when joining - no setup required!**
 
 ### What You Need to Know
 
 **Without this resource pack, player heads won't display in chat!**
 
 The resource pack defines custom Unicode characters that render as pixels. Without it, players will see garbled text like `󰀁󰀂󰀃` instead of heads.
+
+**The good news:** The plugin sends this pack automatically by default!
 
 ---
 

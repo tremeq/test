@@ -896,14 +896,15 @@ chathead:
     #   - Dropbox (change ?dl=0 to ?dl=1):
     #     https://www.dropbox.com/s/abc123/chathead-resourcepack.zip?dl=1
     #
-    #   - ChatHeadFont pack (default, works but not customizable):
+    #   - ChatHeadFont pack (default, works out of the box):
     #     https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip
     #
-    # IMPORTANT: Replace this with your own hosted URL!
-    #           See RESOURCEPACK_SETUP_GUIDE.md for detailed instructions.
+    # The default URL below works immediately without any setup!
+    # You can replace it with your own pack URL if you want customization.
+    # See RESOURCEPACK_SETUP_GUIDE.md for hosting your own pack.
     #
-    # Default: "" (empty, must be configured)
-    url: ""
+    # Default: "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip" (works immediately!)
+    url: "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip"
 
     # SHA1 hash for resource pack verification
     #
