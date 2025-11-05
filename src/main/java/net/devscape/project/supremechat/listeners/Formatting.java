@@ -6,10 +6,12 @@ import net.devscape.project.supremechat.hooks.DiscordSRVHook;
 import net.devscape.project.supremechat.object.Channel;
 import net.devscape.project.supremechat.utils.FormatUtil;
 import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.minso.chathead.API.ChatHeadAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -298,8 +300,42 @@ public class Formatting implements Listener {
             // DiscordSRV classes not available
         }
 
-        // Build chat component for players
-        TextComponent msg = new TextComponent(TextComponent.fromLegacyText(format(formattedMessage)));
+        // Build chat component for players with ChatHead
+        TextComponent msg;
+
+        // Check if ChatHead is enabled (follows resourcepack auto-send setting)
+        boolean chatHeadEnabled = plugin.getConfig().getBoolean("chathead.resourcepack.auto-send", true);
+
+        if (chatHeadEnabled) {
+            // Get player's head from ChatHeadAPI
+            BaseComponent[] head = ChatHeadAPI.getInstance().getHeadSmart(player);
+
+            if (head != null && head.length > 0) {
+                // Build message with head prepended
+                ComponentBuilder builder = new ComponentBuilder();
+
+                // Add head components
+                for (BaseComponent component : head) {
+                    builder.append(component);
+                }
+
+                // Add space after head
+                builder.append(" ");
+
+                // Add formatted message
+                builder.append(TextComponent.fromLegacyText(format(formattedMessage)));
+
+                // Create final message from builder
+                BaseComponent[] components = builder.create();
+                msg = new TextComponent(components);
+            } else {
+                // Fallback if head is null
+                msg = new TextComponent(TextComponent.fromLegacyText(format(formattedMessage)));
+            }
+        } else {
+            // ChatHead disabled, use normal message
+            msg = new TextComponent(TextComponent.fromLegacyText(format(formattedMessage)));
+        }
 
         if (plugin.getConfig().getBoolean("hover.enable")) {
             ComponentBuilder hoverBuilder = new ComponentBuilder();
