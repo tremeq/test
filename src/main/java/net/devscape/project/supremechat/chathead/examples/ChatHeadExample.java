@@ -36,7 +36,10 @@ public class ChatHeadExample implements Listener {
 
         // Create a welcome message with the player's head
         TextComponent message = new TextComponent("Welcome ");
-        message.addExtra(head);
+        // Add each component from the head array
+        for (BaseComponent component : head) {
+            message.addExtra(component);
+        }
         message.addExtra(new TextComponent(" " + player.getName() + "!"));
 
         // Send to player
@@ -57,7 +60,10 @@ public class ChatHeadExample implements Listener {
 
         // Create message
         TextComponent message = new TextComponent("");
-        message.addExtra(head);
+        // Add each component from the head array
+        for (BaseComponent component : head) {
+            message.addExtra(component);
+        }
         message.addExtra(new TextComponent(" " + targetPlayerName + " says hi!"));
 
         player.spigot().sendMessage(message);
@@ -80,7 +86,10 @@ public class ChatHeadExample implements Listener {
 
         // Create message
         TextComponent message = new TextComponent("Custom source: ");
-        message.addExtra(head);
+        // Add each component from the head array
+        for (BaseComponent component : head) {
+            message.addExtra(component);
+        }
         message.addExtra(new TextComponent(" " + player.getName()));
 
         player.spigot().sendMessage(message);
@@ -98,9 +107,15 @@ public class ChatHeadExample implements Listener {
 
         // Create message with multiple heads
         TextComponent message = new TextComponent("Chat between ");
-        message.addExtra(head1);
+        // Add first head
+        for (BaseComponent component : head1) {
+            message.addExtra(component);
+        }
         message.addExtra(new TextComponent(" " + playerName1 + " and "));
-        message.addExtra(head2);
+        // Add second head
+        for (BaseComponent component : head2) {
+            message.addExtra(component);
+        }
         message.addExtra(new TextComponent(" " + playerName2));
 
         player.spigot().sendMessage(message);
@@ -116,7 +131,10 @@ public class ChatHeadExample implements Listener {
         BaseComponent[] head = api.getHead(player.getName(), false);
 
         TextComponent message = new TextComponent("No overlay: ");
-        message.addExtra(head);
+        // Add each component from the head array
+        for (BaseComponent component : head) {
+            message.addExtra(component);
+        }
 
         player.spigot().sendMessage(message);
     }

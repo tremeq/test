@@ -143,11 +143,17 @@ public class ResourcePackManager implements Listener {
                     .deserialize(promptMessage);
 
             if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
-                // With SHA1 hash verification
-                player.setResourcePack(resourcePackUrl, resourcePackHash, forceResourcePack, prompt);
+                // With SHA1 hash verification - try with String first (newer API)
+                try {
+                    player.setResourcePack(resourcePackUrl, resourcePackHash, forceResourcePack, prompt);
+                } catch (IllegalArgumentException e) {
+                    // If String hash fails, try with byte[] (older API expects byte[])
+                    byte[] hashBytes = hexStringToByteArray(resourcePackHash);
+                    player.setResourcePack(resourcePackUrl, hashBytes, forceResourcePack, prompt);
+                }
             } else {
                 // Without SHA1 hash
-                player.setResourcePack(resourcePackUrl, (String) null, forceResourcePack, prompt);
+                player.setResourcePack(resourcePackUrl, (byte[]) null, forceResourcePack, prompt);
             }
         } catch (Exception e) {
             // If Adventure API fails, fall back to legacy
@@ -163,17 +169,41 @@ public class ResourcePackManager implements Listener {
      */
     private void sendResourcePackLegacy(Player player) {
         if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
-            // Try setResourcePack with hash (1.16+)
+            // Try setResourcePack with hash
             try {
+                // Try String hash first (newer versions)
                 player.setResourcePack(resourcePackUrl, resourcePackHash);
-            } catch (NoSuchMethodError e) {
-                // Very old version, just URL
-                player.setResourcePack(resourcePackUrl);
+            } catch (NoSuchMethodError | IllegalArgumentException e) {
+                // If String fails, try byte[] (older versions)
+                try {
+                    byte[] hashBytes = hexStringToByteArray(resourcePackHash);
+                    player.setResourcePack(resourcePackUrl, hashBytes);
+                } catch (NoSuchMethodError e2) {
+                    // Very old version, just URL
+                    player.setResourcePack(resourcePackUrl);
+                }
             }
         } else {
             // Just URL, no hash
             player.setResourcePack(resourcePackUrl);
         }
+    }
+
+    /**
+     * Converts a hex string to byte array.
+     * Used for SHA1 hash conversion in older API versions.
+     *
+     * @param hexString The hex string (e.g., SHA1 hash)
+     * @return Byte array representation
+     */
+    private byte[] hexStringToByteArray(String hexString) {
+        int len = hexString.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+                                + Character.digit(hexString.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     /**
