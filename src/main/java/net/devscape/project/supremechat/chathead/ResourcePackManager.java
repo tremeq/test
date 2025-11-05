@@ -142,14 +142,15 @@ public class ResourcePackManager implements Listener {
                 net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
                     .deserialize(promptMessage);
 
-            // Paper 1.21.8 uses: setResourcePack(String url, byte[] hash, boolean required, Component prompt)
+            // Paper 1.21.8 uses: setResourcePack(String url, byte[] hash, Component prompt)
+            // Note: There's no "required" parameter in this version
             // Convert SHA1 hex string to byte array
             byte[] hashBytes = null;
             if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
                 hashBytes = hexStringToByteArray(resourcePackHash);
             }
 
-            player.setResourcePack(resourcePackUrl, hashBytes, forceResourcePack, prompt);
+            player.setResourcePack(resourcePackUrl, hashBytes, prompt);
         } catch (Exception e) {
             // If Adventure API fails, fall back to legacy
             plugin.getLogger().warning("Failed to use new resource pack API, falling back to legacy: " + e.getMessage());
