@@ -97,12 +97,21 @@ public class ChatHeadAPI {
             }
         } else {
             // Manual configuration
-            defaultSource = switch (configSource.toUpperCase()) {
-                case "CRAFATAR" -> new CrafatarSource();
-                case "MINOTAR" -> new MinotarSource(false); // Force username for offline compatibility
-                case "MCHEADS" -> new MinotarSource(false); // Minotar is used for both
-                default -> new MojangSource();
-            };
+            String sourceUpper = configSource.toUpperCase();
+            switch (sourceUpper) {
+                case "CRAFATAR":
+                    defaultSource = new CrafatarSource();
+                    break;
+                case "MINOTAR":
+                    defaultSource = new MinotarSource(false); // Force username for offline compatibility
+                    break;
+                case "MCHEADS":
+                    defaultSource = new MinotarSource(false); // Minotar is used for both
+                    break;
+                default:
+                    defaultSource = new MojangSource();
+                    break;
+            }
             plugin.getLogger().info("ChatHeadAPI: Using configured source: " + configSource);
         }
 
