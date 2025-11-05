@@ -142,13 +142,14 @@ public class ResourcePackManager implements Listener {
                 net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
                     .deserialize(promptMessage);
 
-            // Paper 1.20.3+ uses: setResourcePack(String url, String hash, boolean required, Component prompt)
-            // If hash is provided, use it; otherwise pass empty string
-            String hash = (resourcePackHash != null && !resourcePackHash.isEmpty())
-                ? resourcePackHash
-                : "";
+            // Paper 1.21.8 uses: setResourcePack(String url, byte[] hash, boolean required, Component prompt)
+            // Convert SHA1 hex string to byte array
+            byte[] hashBytes = null;
+            if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
+                hashBytes = hexStringToByteArray(resourcePackHash);
+            }
 
-            player.setResourcePack(resourcePackUrl, hash, forceResourcePack, prompt);
+            player.setResourcePack(resourcePackUrl, hashBytes, forceResourcePack, prompt);
         } catch (Exception e) {
             // If Adventure API fails, fall back to legacy
             plugin.getLogger().warning("Failed to use new resource pack API, falling back to legacy: " + e.getMessage());
@@ -168,6 +169,22 @@ public class ResourcePackManager implements Listener {
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send resource pack: " + e.getMessage());
         }
+    }
+
+    /**
+     * Converts a hex string (SHA1 hash) to byte array.
+     *
+     * @param hexString The hex string (40 characters for SHA1)
+     * @return Byte array representation
+     */
+    private byte[] hexStringToByteArray(String hexString) {
+        int len = hexString.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
+                                + Character.digit(hexString.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     /**
