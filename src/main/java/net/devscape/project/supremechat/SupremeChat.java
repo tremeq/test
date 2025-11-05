@@ -347,10 +347,30 @@ public final class SupremeChat extends JavaPlugin {
         }
 
         // Validate ChatHead API configuration
-        if (!config.isSet("chathead.skin-source")) {
+        if (!config.isSet("chathead.enabled")) {
+            // Full chathead configuration with all options
+            config.set("chathead.enabled", true);
             config.set("chathead.skin-source", "AUTO");
             config.set("chathead.cache-time-minutes", 5);
-            config.set("chathead.enabled", true);
+            config.set("chathead.use-overlay-by-default", true);
+
+            // Add helpful comments
+            getLogger().info("ChatHead configuration created with default values");
+            getLogger().info("  - enabled: true");
+            getLogger().info("  - skin-source: AUTO (auto-detects online/offline mode)");
+            getLogger().info("  - cache-time-minutes: 5");
+            getLogger().info("  - use-overlay-by-default: true");
+
+            plugin.saveConfig();
+        }
+
+        // Ensure all chathead sub-options exist (for upgrades from older versions)
+        boolean needsSave = false;
+        if (!config.isSet("chathead.use-overlay-by-default")) {
+            config.set("chathead.use-overlay-by-default", true);
+            needsSave = true;
+        }
+        if (needsSave) {
             plugin.saveConfig();
         }
     }

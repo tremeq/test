@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class HeadCache {
 
     private final JavaPlugin plugin;
-    private static final long CACHE_EXPIRATION = 5 * 60 * 1000; // 5 minutes
+    private final long cacheExpiration; // Now configurable!
 
     private final Map<String, CachedHead> cache = new ConcurrentHashMap<>();
     private final Map<String, Boolean> pendingRequests = new ConcurrentHashMap<>();
@@ -25,6 +25,12 @@ public class HeadCache {
 
     public HeadCache(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        // Read cache time from config (in minutes), default to 5 minutes
+        int cacheMinutes = plugin.getConfig().getInt("chathead.cache-time-minutes", 5);
+        this.cacheExpiration = cacheMinutes * 60 * 1000L; // Convert to milliseconds
+
+        plugin.getLogger().info("ChatHead cache expiration set to " + cacheMinutes + " minutes");
         startCacheCleanupTask();
     }
 
@@ -102,7 +108,7 @@ public class HeadCache {
     }
 
     private boolean isExpired(CachedHead cachedHead) {
-        return System.currentTimeMillis() - cachedHead.getTimestamp() > CACHE_EXPIRATION;
+        return System.currentTimeMillis() - cachedHead.getTimestamp() > cacheExpiration;
     }
 
     private void startCacheCleanupTask() {
@@ -110,9 +116,11 @@ public class HeadCache {
             cacheCleanupTask.cancel();
         }
 
+        // Run cleanup task at intervals equal to cache expiration time
+        long cleanupInterval = cacheExpiration / 20; // Convert ms to ticks
         cacheCleanupTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             cache.entrySet().removeIf(entry -> isExpired(entry.getValue()));
-        }, CACHE_EXPIRATION / 20, CACHE_EXPIRATION / 20);
+        }, cleanupInterval, cleanupInterval);
     }
 
     private String getCacheKey(UUID uuid, boolean overlay) {

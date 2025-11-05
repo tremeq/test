@@ -42,14 +42,19 @@ public class ChatHeadAPI {
     private final JavaPlugin plugin;
     private final HeadCache headCache;
     private final boolean isOnlineMode;
+    private final boolean enabled;
+    private final boolean useOverlayByDefault;
 
     private ChatHeadAPI(JavaPlugin plugin) {
         this.plugin = plugin;
         this.headCache = new HeadCache(plugin);
         this.isOnlineMode = Bukkit.getServer().getOnlineMode();
+        this.enabled = plugin.getConfig().getBoolean("chathead.enabled", true);
+        this.useOverlayByDefault = plugin.getConfig().getBoolean("chathead.use-overlay-by-default", true);
 
         plugin.getLogger().info("ChatHeadAPI initialized in " +
             (isOnlineMode ? "ONLINE" : "OFFLINE") + " mode");
+        plugin.getLogger().info("ChatHeadAPI status: " + (enabled ? "ENABLED" : "DISABLED"));
     }
 
     public static ChatHeadAPI getInstance() {
@@ -67,6 +72,13 @@ public class ChatHeadAPI {
     public static void initialize(JavaPlugin plugin) {
         if (instance != null) {
             throw new IllegalStateException("ChatHeadAPI has already been initialized.");
+        }
+
+        // Check if ChatHead is enabled in config
+        boolean enabled = plugin.getConfig().getBoolean("chathead.enabled", true);
+        if (!enabled) {
+            plugin.getLogger().info("ChatHeadAPI is DISABLED in config - skipping initialization");
+            return; // Don't initialize if disabled
         }
 
         boolean isOnlineMode = Bukkit.getServer().getOnlineMode();
@@ -107,26 +119,32 @@ public class ChatHeadAPI {
     // ==================== UUID-based methods (original API) ====================
 
     public BaseComponent[] getHead(UUID uuid) {
-        return headCache.getCachedHead(uuid, true, defaultSource);
+        if (!enabled) return new BaseComponent[]{};
+        return headCache.getCachedHead(uuid, useOverlayByDefault, defaultSource);
     }
 
     public BaseComponent[] getHead(UUID uuid, boolean overlay) {
+        if (!enabled) return new BaseComponent[]{};
         return headCache.getCachedHead(uuid, overlay, defaultSource);
     }
 
     public BaseComponent[] getHead(UUID uuid, boolean overlay, SkinSource skinSource) {
+        if (!enabled) return new BaseComponent[]{};
         return headCache.getCachedHead(uuid, overlay, skinSource);
     }
 
     public BaseComponent[] getHead(OfflinePlayer player) {
-        return headCache.getCachedHead(player, true, defaultSource);
+        if (!enabled) return new BaseComponent[]{};
+        return headCache.getCachedHead(player, useOverlayByDefault, defaultSource);
     }
 
     public BaseComponent[] getHead(OfflinePlayer player, boolean overlay) {
+        if (!enabled) return new BaseComponent[]{};
         return headCache.getCachedHead(player, overlay, defaultSource);
     }
 
     public BaseComponent[] getHead(OfflinePlayer player, boolean overlay, SkinSource skinSource) {
+        if (!enabled) return new BaseComponent[]{};
         return headCache.getCachedHead(player, overlay, skinSource);
     }
 
@@ -142,7 +160,8 @@ public class ChatHeadAPI {
      * @return BaseComponent array representing the player's head
      */
     public BaseComponent[] getHead(String playerName) {
-        return getHead(playerName, true);
+        if (!enabled) return new BaseComponent[]{};
+        return getHead(playerName, useOverlayByDefault);
     }
 
     /**
@@ -153,6 +172,7 @@ public class ChatHeadAPI {
      * @return BaseComponent array representing the player's head
      */
     public BaseComponent[] getHead(String playerName, boolean overlay) {
+        if (!enabled) return new BaseComponent[]{};
         return getHead(playerName, overlay, defaultSource);
     }
 
@@ -165,6 +185,7 @@ public class ChatHeadAPI {
      * @return BaseComponent array representing the player's head
      */
     public BaseComponent[] getHead(String playerName, boolean overlay, SkinSource skinSource) {
+        if (!enabled) return new BaseComponent[]{};
         if (!skinSource.hasUsernameSupport()) {
             throw new UnsupportedOperationException(
                 "SkinSource " + skinSource.getSkinSource() + " does not support username-based retrieval. " +
@@ -188,7 +209,8 @@ public class ChatHeadAPI {
      * @return BaseComponent array representing the player's head
      */
     public BaseComponent[] getHeadSmart(OfflinePlayer player) {
-        return getHeadSmart(player, true);
+        if (!enabled) return new BaseComponent[]{};
+        return getHeadSmart(player, useOverlayByDefault);
     }
 
     /**
@@ -199,6 +221,7 @@ public class ChatHeadAPI {
      * @return BaseComponent array representing the player's head
      */
     public BaseComponent[] getHeadSmart(OfflinePlayer player, boolean overlay) {
+        if (!enabled) return new BaseComponent[]{};
         if (isOnlineMode) {
             // Online mode: use UUID
             return headCache.getCachedHead(player, overlay, defaultSource);
@@ -244,6 +267,13 @@ public class ChatHeadAPI {
     // ==================== Utility methods ====================
 
     /**
+     * Check if the ChatHeadAPI is enabled.
+     */
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    /**
      * Check if the server is in online mode.
      */
     public boolean isOnlineMode() {
@@ -258,9 +288,18 @@ public class ChatHeadAPI {
     }
 
     /**
+     * Check if overlay is used by default.
+     */
+    public boolean isUseOverlayByDefault() {
+        return useOverlayByDefault;
+    }
+
+    /**
      * Shutdown the API and cleanup resources.
      */
     public void shutdown() {
-        headCache.shutdown();
+        if (headCache != null) {
+            headCache.shutdown();
+        }
     }
 }
