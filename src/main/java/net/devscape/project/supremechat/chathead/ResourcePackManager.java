@@ -131,42 +131,17 @@ public class ResourcePackManager implements Listener {
     }
 
     /**
-     * Sends resource pack using new 1.20.3+ API with Adventure components.
+     * Sends resource pack using simplest API available.
      *
      * @param player The player to send the pack to
      */
     private void sendResourcePackNew(Player player) {
         try {
-            // Paper 1.21.8 might have different signatures, try multiple approaches
-
-            // Convert legacy color codes to Adventure component
-            net.kyori.adventure.text.Component prompt =
-                net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer.legacySection()
-                    .deserialize(promptMessage);
-
-            // Convert SHA1 hex string to byte array if provided
-            byte[] hashBytes = null;
-            if (resourcePackHash != null && !resourcePackHash.isEmpty()) {
-                hashBytes = hexStringToByteArray(resourcePackHash);
-            }
-
-            // Try different method signatures available in Paper API
-            try {
-                // Try: setResourcePack(String url, String hash, boolean required, Component prompt)
-                if (hashBytes != null) {
-                    player.setResourcePack(resourcePackUrl, resourcePackHash, forceResourcePack, prompt);
-                } else {
-                    player.setResourcePack(resourcePackUrl, "", forceResourcePack, prompt);
-                }
-            } catch (Exception e) {
-                // If that fails, try simpler signature: setResourcePack(String url)
-                player.setResourcePack(resourcePackUrl);
-                plugin.getLogger().info("Sent resource pack using URL-only method");
-            }
+            // Use simplest method that works everywhere: just URL
+            player.setResourcePack(resourcePackUrl);
+            plugin.getLogger().fine("Sent resource pack to " + player.getName());
         } catch (Exception e) {
-            // If all fails, use legacy method
-            plugin.getLogger().warning("Failed to use new resource pack API, falling back to legacy: " + e.getMessage());
-            sendResourcePackLegacy(player);
+            plugin.getLogger().warning("Failed to send resource pack to " + player.getName() + ": " + e.getMessage());
         }
     }
 
@@ -182,22 +157,6 @@ public class ResourcePackManager implements Listener {
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send resource pack: " + e.getMessage());
         }
-    }
-
-    /**
-     * Converts a hex string (SHA1 hash) to byte array.
-     *
-     * @param hexString The hex string (40 characters for SHA1)
-     * @return Byte array representation
-     */
-    private byte[] hexStringToByteArray(String hexString) {
-        int len = hexString.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(hexString.charAt(i), 16) << 4)
-                                + Character.digit(hexString.charAt(i + 1), 16));
-        }
-        return data;
     }
 
     /**
