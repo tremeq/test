@@ -1,6 +1,7 @@
 package net.devscape.project.supremechat;
 
 import net.devscape.project.supremechat.chatgames.GameManager;
+import net.devscape.project.supremechat.chathead.ChatHeadAPI;
 import net.devscape.project.supremechat.commands.ChannelCommand;
 import net.devscape.project.supremechat.commands.EmojisCommands;
 import net.devscape.project.supremechat.commands.MessageCommand;
@@ -59,6 +60,16 @@ public final class SupremeChat extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
+        // Shutdown ChatHead API
+        try {
+            if (ChatHeadAPI.getInstance() != null) {
+                ChatHeadAPI.getInstance().shutdown();
+                getLogger().info("ChatHeadAPI shutdown successfully");
+            }
+        } catch (Exception e) {
+            // API not initialized, ignore
+        }
+
         // Stop chat games scheduler
         if (gameManager != null) {
             gameManager.stopScheduler();
@@ -77,6 +88,15 @@ public final class SupremeChat extends JavaPlugin {
         configValidator();
 
         setupVault();
+
+        // Initialize ChatHead API with offline mode support
+        try {
+            ChatHeadAPI.initialize(this);
+            getLogger().info("ChatHeadAPI initialized successfully!");
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize ChatHeadAPI: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         channelManager = new ChannelManager();
         gameManager = new GameManager(this);
@@ -186,6 +206,17 @@ public final class SupremeChat extends JavaPlugin {
         super.reloadConfig();
         configValidator();
         channelManager.reloadChannels();
+
+        // Reload ChatHeadAPI
+        try {
+            if (ChatHeadAPI.getInstance() != null) {
+                ChatHeadAPI.getInstance().shutdown();
+            }
+            ChatHeadAPI.initialize(this);
+            getLogger().info("ChatHeadAPI reloaded successfully!");
+        } catch (Exception e) {
+            getLogger().warning("Failed to reload ChatHeadAPI: " + e.getMessage());
+        }
 
         // Reload chat games system
         if (gameManager != null) {
@@ -312,6 +343,14 @@ public final class SupremeChat extends JavaPlugin {
         // Validate chat games win message
         if (!config.isSet("chatgames.strings.game-win")) {
             config.set("chatgames.strings.game-win", "&c&lC&6&lH&e&lA&a&lT&b&l &9&lG&d&lA&5&lM&c&lE&6&lS &8&l➟ &a%player% &7won the game!");
+            plugin.saveConfig();
+        }
+
+        // Validate ChatHead API configuration
+        if (!config.isSet("chathead.skin-source")) {
+            config.set("chathead.skin-source", "AUTO");
+            config.set("chathead.cache-time-minutes", 5);
+            config.set("chathead.enabled", true);
             plugin.saveConfig();
         }
     }
