@@ -65,7 +65,7 @@ public class ResourcePackManager implements Listener {
     }
 
     /**
-     * Handles player join event to send resource pack.
+     * Handles player join event to send resource pack and pre-load player skin.
      * Uses LOWEST priority to run early, but after authentication.
      *
      * @param event The player join event
@@ -88,6 +88,10 @@ public class ResourcePackManager implements Listener {
 
         // Send the resource pack to the player
         sendResourcePack(player);
+
+        // Pre-load player's skin into cache to avoid delay on first chat message
+        // This is done with a small delay to give resource pack time to load
+        preLoadPlayerSkin(player);
     }
 
     /**
@@ -156,6 +160,53 @@ public class ResourcePackManager implements Listener {
             player.setResourcePack(resourcePackUrl);
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to send resource pack: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Pre-loads the player's skin into cache to avoid delay on first chat message.
+     * This ensures that when the player sends their first message, the head is already
+     * cached and ready to display.
+     *
+     * The pre-loading is done with a short delay (1 second) to:
+     * - Give the resource pack time to download and apply
+     * - Avoid overloading the server during join
+     * - Allow player to fully connect before fetching skin
+     *
+     * @param player The player whose skin should be pre-loaded
+     */
+    private void preLoadPlayerSkin(Player player) {
+        try {
+            // Only pre-load if ChatHeadAPI is initialized and enabled
+            ChatHeadAPI api = ChatHeadAPI.getInstance();
+            if (api == null || !api.isEnabled()) {
+                return;
+            }
+
+            // Schedule skin pre-loading with a 1 second delay (20 ticks)
+            // This gives time for resource pack to load and player to stabilize
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                // Check if player is still online
+                if (!player.isOnline()) {
+                    return;
+                }
+
+                try {
+                    // Trigger skin loading by calling getHeadSmart()
+                    // This will start an async task that fetches and caches the skin
+                    // The result is discarded here - we only want to populate the cache
+                    api.getHeadSmart(player);
+
+                    plugin.getLogger().fine("Pre-loaded skin for " + player.getName() + " into cache");
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to pre-load skin for " + player.getName() + ": " + e.getMessage());
+                }
+            }, 20L); // 20 ticks = 1 second delay
+        } catch (IllegalArgumentException e) {
+            // ChatHeadAPI not initialized - this is fine, just skip pre-loading
+            plugin.getLogger().fine("ChatHeadAPI not initialized, skipping skin pre-load for " + player.getName());
+        } catch (Exception e) {
+            plugin.getLogger().warning("Unexpected error during skin pre-load: " + e.getMessage());
         }
     }
 
