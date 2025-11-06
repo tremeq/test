@@ -1,6 +1,8 @@
 package net.devscape.project.supremechat;
 
 import net.devscape.project.supremechat.chatgames.GameManager;
+import net.devscape.project.supremechat.chathead.ChatHeadAPI;
+import net.devscape.project.supremechat.chathead.ResourcePackManager;
 import net.devscape.project.supremechat.commands.ChannelCommand;
 import net.devscape.project.supremechat.commands.EmojisCommands;
 import net.devscape.project.supremechat.commands.MessageCommand;
@@ -26,9 +28,17 @@ import java.util.Map;
 
 public final class SupremeChat extends JavaPlugin {
 
+    /**
+     * Default resource pack URL for ChatHead rendering.
+     * This pack is hosted on GitHub and works out of the box.
+     * Users can override this in config.yml with their own pack.
+     */
+    public static final String DEFAULT_RESOURCE_PACK = "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip";
+
     private static SupremeChat instance;
     private ChannelManager channelManager;
     private GameManager gameManager;
+    private ResourcePackManager resourcePackManager;
 
     private static Permission perms = null;
     private static Chat chat;
@@ -59,6 +69,16 @@ public final class SupremeChat extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
 
+        // Shutdown ChatHead API
+        try {
+            if (ChatHeadAPI.getInstance() != null) {
+                ChatHeadAPI.getInstance().shutdown();
+                getLogger().info("ChatHeadAPI shutdown successfully");
+            }
+        } catch (Exception e) {
+            // API not initialized, ignore
+        }
+
         // Stop chat games scheduler
         if (gameManager != null) {
             gameManager.stopScheduler();
@@ -77,6 +97,29 @@ public final class SupremeChat extends JavaPlugin {
         configValidator();
 
         setupVault();
+
+        // Initialize ChatHead API with offline mode support
+        try {
+            ChatHeadAPI.initialize(this);
+            getLogger().info("ChatHeadAPI initialized successfully!");
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize ChatHeadAPI: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        // Initialize Resource Pack Manager for automatic distribution
+        try {
+            resourcePackManager = new ResourcePackManager(this);
+            if (resourcePackManager.isEnabled()) {
+                getServer().getPluginManager().registerEvents(resourcePackManager, this);
+                getLogger().info("ResourcePackManager initialized and registered");
+            } else {
+                getLogger().info("ResourcePackManager disabled in config");
+            }
+        } catch (Exception e) {
+            getLogger().warning("Failed to initialize ResourcePackManager: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         channelManager = new ChannelManager();
         gameManager = new GameManager(this);
@@ -186,6 +229,17 @@ public final class SupremeChat extends JavaPlugin {
         super.reloadConfig();
         configValidator();
         channelManager.reloadChannels();
+
+        // Reload ChatHeadAPI
+        try {
+            if (ChatHeadAPI.getInstance() != null) {
+                ChatHeadAPI.getInstance().shutdown();
+            }
+            ChatHeadAPI.initialize(this);
+            getLogger().info("ChatHeadAPI reloaded successfully!");
+        } catch (Exception e) {
+            getLogger().warning("Failed to reload ChatHeadAPI: " + e.getMessage());
+        }
 
         // Reload chat games system
         if (gameManager != null) {
@@ -312,6 +366,50 @@ public final class SupremeChat extends JavaPlugin {
         // Validate chat games win message
         if (!config.isSet("chatgames.strings.game-win")) {
             config.set("chatgames.strings.game-win", "&c&lC&6&lH&e&lA&a&lT&b&l &9&lG&d&lA&5&lM&c&lE&6&lS &8&l➟ &a%player% &7won the game!");
+            plugin.saveConfig();
+        }
+
+        // Validate ChatHead API configuration
+        if (!config.isSet("chathead.enabled")) {
+            // Full chathead configuration with all options
+            config.set("chathead.enabled", true);
+            config.set("chathead.skin-source", "AUTO");
+            config.set("chathead.cache-time-minutes", 5);
+            config.set("chathead.use-overlay-by-default", true);
+
+            // Add helpful comments
+            getLogger().info("ChatHead configuration created with default values");
+            getLogger().info("  - enabled: true");
+            getLogger().info("  - skin-source: AUTO (auto-detects online/offline mode)");
+            getLogger().info("  - cache-time-minutes: 5");
+            getLogger().info("  - use-overlay-by-default: true");
+
+            plugin.saveConfig();
+        }
+
+        // Ensure all chathead sub-options exist (for upgrades from older versions)
+        boolean needsSave = false;
+        if (!config.isSet("chathead.use-overlay-by-default")) {
+            config.set("chathead.use-overlay-by-default", true);
+            needsSave = true;
+        }
+
+        // Validate ChatHead ResourcePack configuration
+        if (!config.isSet("chathead.resourcepack.auto-send")) {
+            config.set("chathead.resourcepack.auto-send", true);
+            config.set("chathead.resourcepack.url", DEFAULT_RESOURCE_PACK);
+            config.set("chathead.resourcepack.sha1", "");
+            config.set("chathead.resourcepack.prompt", "§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat\n§e§lHighly Recommended!");
+            config.set("chathead.resourcepack.force", false);
+
+            getLogger().info("ChatHead resource pack configuration created with default URL");
+            getLogger().info("  Default pack: " + DEFAULT_RESOURCE_PACK);
+            getLogger().info("  You can change the URL in config.yml to use your own pack");
+
+            needsSave = true;
+        }
+
+        if (needsSave) {
             plugin.saveConfig();
         }
     }

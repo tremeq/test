@@ -760,3 +760,210 @@ discordsrv:
   #
   # WARNING: This creates A LOT of logs! Only enable when debugging issues.
   debug: false
+
+# ==================================================
+# CHATHEAD - Player Head Rendering in Chat
+# Built-in ChatHeadFont API with offline mode support
+# ==================================================
+chathead:
+  # Enable or disable the ChatHead system
+  # Set to false to completely disable player head rendering in chat
+  # Default: true
+  enabled: true
+
+  # Skin source for fetching player skins
+  #
+  # Available options:
+  #   AUTO     - Automatically selects the best source based on server mode [RECOMMENDED]
+  #              ├─ Online mode  -> Uses MOJANG (official, most reliable)
+  #              └─ Offline mode -> Uses MINOTAR (supports name-based retrieval)
+  #
+  #   MOJANG   - Official Mojang API
+  #              ✅ Best for online mode servers (online-mode=true)
+  #              ❌ Does NOT work in offline mode (requires valid Mojang UUIDs)
+  #
+  #   MINOTAR  - Minotar service (https://minotar.net)
+  #              ✅ Works in both online and offline mode
+  #              ✅ Supports name-based retrieval (perfect for cracked servers)
+  #              ⚡ Generally faster than Mojang
+  #
+  #   CRAFATAR - Crafatar service (https://crafatar.com)
+  #              ✅ Fast and reliable for online mode
+  #              ❌ Does NOT work in offline mode (UUID-based only)
+  #
+  #   MCHEADS  - MC-Heads service (currently uses Minotar implementation)
+  #              ✅ Works in both online and offline mode
+  #
+  # Recommendation by server type:
+  #   - Cracked/Offline servers: AUTO or MINOTAR
+  #   - Premium/Online servers:  AUTO or MOJANG
+  #   - High-performance:        MINOTAR (faster)
+  #
+  # Default: AUTO
+  skin-source: AUTO
+
+  # How long to cache player heads (in minutes)
+  #
+  # Performance considerations:
+  #   ┌─ Longer cache (10-15 min)
+  #   │  ✅ Better performance, less API calls
+  #   │  ❌ Skins update slower
+  #   │  👥 Best for large servers (200+ players)
+  #   │
+  #   └─ Shorter cache (1-5 min)
+  #      ✅ Fresher skins, quick updates
+  #      ❌ More API calls, slightly worse performance
+  #      👥 Best for small servers (< 50 players)
+  #
+  # Recommended values by server size:
+  #   - Small servers (< 50 players):    2-5 minutes
+  #   - Medium servers (50-200):         5-10 minutes
+  #   - Large servers (200+):            10-15 minutes
+  #   - Testing/Development:             1 minute
+  #
+  # Default: 5
+  cache-time-minutes: 5
+
+  # Whether to include the second skin layer (helmet/overlay) by default
+  #
+  # What is overlay?
+  #   The second layer of Minecraft skins that shows hats, helmets, and accessories
+  #
+  # Options:
+  #   true  - Show full head with hat/accessories
+  #           ✅ Looks better, more detailed
+  #           ⚠️  Slightly slower (minimal impact)
+  #
+  #   false - Show only base skin layer
+  #           ✅ Marginally faster
+  #           ❌ No accessories/hats visible
+  #
+  # Note: You can still override this per-call in code using API methods
+  #
+  # Recommendation: true (looks much better, minimal performance impact)
+  # Default: true
+  use-overlay-by-default: true
+
+  # ==================================================
+  # AUTOMATIC RESOURCE PACK DISTRIBUTION
+  # ==================================================
+  # The ChatHead feature REQUIRES a resource pack to work properly.
+  # Without it, players will see garbled Unicode text instead of heads.
+  #
+  # This section configures automatic resource pack sending to players.
+  # The pack will be sent when players join the server.
+  #
+  resourcepack:
+    # Enable automatic resource pack sending
+    #
+    # When enabled, the plugin will automatically send the resource pack
+    # to all players when they join the server.
+    #
+    # Options:
+    #   true  - Automatically send pack to players on join
+    #           ✅ Players don't need to manually install
+    #           ✅ Ensures everyone has the pack
+    #           ⚠️  Requires hosting the pack somewhere
+    #
+    #   false - Don't send pack automatically
+    #           ✅ Use if you've configured server.properties
+    #           ✅ Use if you want manual installation only
+    #           ❌ Players must install pack manually
+    #
+    # Note: If server.properties already has a resource-pack setting,
+    #       this will NOT override it (server.properties takes priority)
+    #
+    # Default: true
+    auto-send: true
+
+    # Resource pack URL
+    #
+    # Direct download URL to the chathead-resourcepack.zip file.
+    # MUST be accessible via HTTPS (HTTP won't work in Minecraft).
+    #
+    # How to host the pack:
+    #   1. Upload chathead-resourcepack.zip to GitHub Releases
+    #   2. Get the download URL
+    #   3. Paste it here
+    #
+    # Example URLs:
+    #   - GitHub Releases:
+    #     https://github.com/YOUR_USERNAME/YOUR_REPO/releases/download/v1.0/chathead-resourcepack.zip
+    #
+    #   - Own server:
+    #     https://yourserver.com/downloads/chathead-resourcepack.zip
+    #
+    #   - Dropbox (change ?dl=0 to ?dl=1):
+    #     https://www.dropbox.com/s/abc123/chathead-resourcepack.zip?dl=1
+    #
+    #   - ChatHeadFont pack (default, works out of the box):
+    #     https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip
+    #
+    # The default URL below works immediately without any setup!
+    # You can replace it with your own pack URL if you want customization.
+    # See RESOURCEPACK_SETUP_GUIDE.md for hosting your own pack.
+    #
+    # Default: "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip" (works immediately!)
+    url: "https://github.com/OGminso/ChatHeadFont/raw/main/pack.zip"
+
+    # SHA1 hash for resource pack verification
+    #
+    # This verifies the integrity of the downloaded pack.
+    # Prevents tampering and ensures players get the correct version.
+    #
+    # How to generate:
+    #   Linux/Mac:    sha1sum chathead-resourcepack.zip
+    #   Windows PS:   Get-FileHash chathead-resourcepack.zip -Algorithm SHA1
+    #
+    # Pre-calculated hash for included chathead-resourcepack.zip:
+    #   401b402cefdb05776cb1bb06db0afc0ed566e20d
+    #
+    # Leave empty ("") to skip verification (not recommended)
+    #
+    # Default: "" (empty, should be configured)
+    sha1: ""
+
+    # Custom prompt message shown to players
+    #
+    # This message appears when players are asked to download the pack.
+    # Supports Minecraft color codes (§) and \n for line breaks.
+    #
+    # Color codes:
+    #   §0-§9, §a-§f - Colors
+    #   §l - Bold
+    #   §m - Strikethrough
+    #   §n - Underline
+    #   §o - Italic
+    #   §r - Reset
+    #
+    # Examples:
+    #   "§6§lSupremeChat §aChatHead Pack\n§7Required for player heads in chat"
+    #   "§eServer Resource Pack\n§7Download to see player heads!"
+    #   "§c§lREQUIRED§r §7for enhanced chat experience"
+    #
+    # Default: "ChatHead Resource Pack is required for displaying player heads in chat"
+    prompt: "§6§lSupremeChat §aChatHead Pack\n§7Required for displaying player heads in chat\n§e§lHighly Recommended!"
+
+    # Force resource pack (kick players who decline)
+    #
+    # Options:
+    #   true  - Players who decline the pack will be kicked
+    #           ✅ Ensures everyone has the pack
+    #           ❌ May frustrate players
+    #           🎯 Use for servers where heads are critical
+    #
+    #   false - Players can play without the pack
+    #           ✅ Player choice, less frustrating
+    #           ❌ Some players won't see heads
+    #           🎯 Use for servers where heads are optional
+    #
+    # Recommendation: false (let players choose)
+    # Default: false
+    force: false
+
+# For more configuration help, see:
+#   - CHATHEAD_CONFIG_GUIDE.md (detailed configuration guide)
+#   - CHATHEAD_INTEGRATION_GUIDE.md (code examples)
+#   - OFFLINE_MODE_EXPLANATION.md (offline mode technical details)
+#   - RESOURCEPACK_SETUP_GUIDE.md (resource pack hosting and setup)
+#   - RESOURCEPACK_QUICKSTART.md (quick 5-minute setup)
